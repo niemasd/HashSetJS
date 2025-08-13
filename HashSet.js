@@ -1,5 +1,6 @@
 // imports
 const crypto = require('crypto');
+const fs = require('fs');
 
 // useful constants
 const HASHSETJS_VERSION = '0.0.1';
@@ -8,9 +9,9 @@ const HASHSETJS_VERSION = '0.0.1';
 const HASH_FUNCTIONS = new Map();
 HASH_FUNCTIONS.set('sha512_str',
     /**
-     * Wrapper to compute SHA512 on a `string`.
-     * @param {string} s - The `string` on which the SHA512 will be computed.
-     * @returns {binary} The SHA512 of `s`.
+     * Wrapper to compute SHA512 on a `String`.
+     * @param {String} s - The `String` on which the SHA512 will be computed.
+     * @returns {Binary} The SHA512 of `s`.
      */
     function(s) {
         return crypto.createHash('sha512').update(s).digest().toString('binary');
@@ -24,7 +25,7 @@ class HashSet {
     /**
      * Initialize a new Hash Set.
      * @constructor
-     * @param {string} hash_func - The hash function to use in this Hash Set.
+     * @param {String} hash_func - The hash function to use in this Hash Set.
      */
     constructor(hash_func='sha512_str') {
         this.hashsetjs_version = HASHSETJS_VERSION;
@@ -35,7 +36,7 @@ class HashSet {
 
     /**
      * Return the total number of elements in this Hash Set (hash collisions will be treated as a single element).
-     * @returns {int} The total number of elements in this Hash Set.
+     * @returns {Number} The total number of elements in this Hash Set.
      */
     get size() {
         return this.hashes.size;
@@ -59,23 +60,46 @@ class HashSet {
 
     /**
      * Find an element in this Hash Set.
-     * @param {object} x - The element to find.
+     * @param {Object} x - The element to find.
+     * @returns {Boolean}
      */
     has(x) {
         return this.hashes.has(this.hash_func(x));
     }
 
     /**
+     * Get a JSON representation of this Hash Set.
+     * @returns {String} The JSON representation of this Hash Set.
+     */
+    toJSON() {
+        // TODO DOUBLE CHECK
+        return {
+            hashsetjs_version: this.hashsetjs_version,
+            hashes: Array.from(this.hashes, h => typeof h === 'string' ? h : Buffer.from(h).toString('base64')),
+            hash_func_key: this.hash_func_key
+        };
+    }
+
+    /**
      * Dump this Hash Set into a given file.
-     * @param {string} fn - The name of the file into which this Hash Set should be dumped.
+     * @param {String} fn - The name of the file into which this Hash Set should be dumped.
      */
     dump(fn) {
         // TODO
     }
 
     /**
+     * Load a Hash Set from a JSON representation.
+     * @param {JSON} json - The JSON representation from which to load a Hash Set.
+     * @returns {HashSet} - The loaded Hash Set.
+     */
+    static fromJSON() {
+        // TODO
+    }
+
+    /**
      * Load a Hash Set from a given file.
-     * @param {string} fn - The name of the file from which to load a Hash Set.
+     * @param {String} fn - The name of the file from which to load a Hash Set.
      */
     static load(fn) {
         // TODO
