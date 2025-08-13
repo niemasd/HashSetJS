@@ -8,7 +8,7 @@ const HASHSETJS_VERSION = '0.0.1';
 const HASH_FUNCTIONS = new Map();
 HASH_FUNCTIONS.set('sha512_str', function(s) {
     crypto.createHash('sha512').update(s).digest();
-}
+});
 
 /**
  * Hash Set class (only stores hash values, not actual elements)
