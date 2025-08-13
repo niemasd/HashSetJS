@@ -45,14 +45,14 @@ class HashSet {
      * Insert an element into this Hash Set.
      * @param {object} x - The element to insert.
      */
-    insert(x) {
+    add(x) {
         this.hashes.add(this.hash_func(x));
     }
 }
 
 // TEST TODO DELETE
 const hs = new HashSet();
-hs.insert("Niema");
-hs.insert("Moshiri");
-hs.insert("Niema");
+hs.add("Niema");
+hs.add("Moshiri");
+hs.add("Niema");
 console.log(hs);
