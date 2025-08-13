@@ -11,7 +11,7 @@ HASH_FUNCTIONS.set('sha512_str',
     /**
      * Wrapper to compute SHA512 on a `String`.
      * @param {String} s - The `String` on which the SHA512 will be computed.
-     * @returns {Binary} The SHA512 of `s`.
+     * @returns {String} The SHA512 of `s` as a binary string.
      */
     function(s) {
         return crypto.createHash('sha512').update(s).digest().toString('binary');
@@ -43,8 +43,21 @@ class HashSet {
     }
 
     /**
+     * Return `true` if this Hash Set is equivalent to the other, otherwise return `false`.
+     * @param {Object} other - The other Hash Set against which to compare this one.
+     * @returns {Boolean} `true` if `this` is equivalent to `other`, otherwise `false`.
+     */
+    equals(other) {
+        return (typeof this) === (typeof other) &&
+               this.hashsetjs_version === other.hashsetjs_version &&
+               this.hash_func_key === other.hash_func_key &&
+               this.hashes.size === other.hashes.size &&
+               [...this.hashes].every(h => other.hashes.has(h));
+    }
+
+    /**
      * Insert an element into this Hash Set.
-     * @param {object} x - The element to insert.
+     * @param {Object} x - The element to insert.
      */
     add(x) {
         this.hashes.add(this.hash_func(x));
@@ -72,20 +85,11 @@ class HashSet {
      * @returns {String} The JSON representation of this Hash Set.
      */
     toJSON() {
-        // TODO DOUBLE CHECK
         return {
             hashsetjs_version: this.hashsetjs_version,
-            hashes: Array.from(this.hashes, h => typeof h === 'string' ? h : Buffer.from(h).toString('base64')),
+            hashes: Array.from(this.hashes, h => btoa(h)),
             hash_func_key: this.hash_func_key
         };
-    }
-
-    /**
-     * Dump this Hash Set into a given file.
-     * @param {String} fn - The name of the file into which this Hash Set should be dumped.
-     */
-    dump(fn) {
-        // TODO
     }
 
     /**
@@ -93,7 +97,19 @@ class HashSet {
      * @param {JSON} json - The JSON representation from which to load a Hash Set.
      * @returns {HashSet} - The loaded Hash Set.
      */
-    static fromJSON() {
+    static fromJSON(json) {
+        const hs = new HashSet(json.hash_func_key);
+        hs.hash_func = HASH_FUNCTIONS.get(json.hash_func_key);
+        hs.hashsetjs_version = json.hashsetjs_version;
+        hs.hashes = new Set(json.hashes.map(h => atob(h)));
+        return hs;
+    }
+
+    /**
+     * Dump this Hash Set into a given file.
+     * @param {String} fn - The name of the file into which this Hash Set should be dumped.
+     */
+    dump(fn) {
         // TODO
     }
 
@@ -116,3 +132,6 @@ console.log(hs.has("Niema"));
 hs.delete("Niema");
 console.log(hs);
 console.log(hs.has("Niema"));
+json = hs.toJSON();
+hs2 = HashSet.fromJSON(json);
+console.log(hs.equals(hs2));
