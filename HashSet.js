@@ -48,6 +48,22 @@ class HashSet {
     add(x) {
         this.hashes.add(this.hash_func(x));
     }
+
+    /**
+     * Remove an element from this Hash Set.
+     * @param {object} x - The element to remove.
+     */
+    delete(x) {
+        this.hashes.delete(this.hash_func(x));
+    }
+
+    /**
+     * Find an element in this Hash Set.
+     * @param {object} x - The element to find.
+     */
+    has(x) {
+        return this.hashes.has(this.hash_func(x));
+    }
 }
 
 // TEST TODO DELETE
@@ -56,3 +72,7 @@ hs.add("Niema");
 hs.add("Moshiri");
 hs.add("Niema");
 console.log(hs);
+console.log(hs.has("Niema"));
+hs.delete("Niema");
+console.log(hs);
+console.log(hs.has("Niema"));
