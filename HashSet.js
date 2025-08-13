@@ -64,6 +64,22 @@ class HashSet {
     has(x) {
         return this.hashes.has(this.hash_func(x));
     }
+
+    /**
+     * Dump this Hash Set into a given file.
+     * @param {string} fn - The name of the file into which this Hash Set should be dumped.
+     */
+    dump(fn) {
+        // TODO
+    }
+
+    /**
+     * Load a Hash Set from a given file.
+     * @param {string} fn - The name of the file from which to load a Hash Set.
+     */
+    static load(fn) {
+        // TODO
+    }
 }
 
 // TEST TODO DELETE
