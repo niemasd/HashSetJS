@@ -1,24 +1,53 @@
-// imports
+// IMPORTS START
 const crypto = require('crypto');
 const fs = require('fs');
+// IMPORTS END
 
-// useful constants
-const HASHSETJS_VERSION = '1.0.0';
+// CONSTANTS START
+const HASHSETJS_VERSION = '1.0.1';
+// CONSTANTS END
 
-// hash functions
-const HASH_FUNCTIONS = new Map();
-HASH_FUNCTIONS.set('sha512_str',
-    /**
-     * Wrapper to compute SHA512 on a `String`.
-     * @param {String} s - The `String` on which the SHA512 will be computed.
-     * @returns {String} The SHA512 of `s` as a binary string.
-     */
-    function(s) {
-        return crypto.createHash('sha512').update(s).digest().toString('binary');
-    }
-);
-const HASH_LENGTHS = new Map();
-HASH_LENGTHS.set('sha512_str', 64);
+// HELPER FUNCTIONS START
+/**
+ * Helper wrapper to compute various hash algorithms on a `String`.
+ * @param {String} s - The `String` on which the hash will be computed.
+ * @param {String} algorithm - The hash algorithm to compute.
+ * @returns {String} The hash of `s` as a binary string.
+ */
+function crypto_hash(s, algorithm) {
+    return crypto.createHash(algorithm).update(s).digest().toString('binary');
+}
+// HELPER FUNCTIONS END
+
+// HASH FUNCTIONS START
+/**
+ * Wrapper to compute SHA256 on a `String`.
+ * @param {String} s - The `String` on which the SHA256 will be computed.
+ * @returns {String} The SHA256 of `s` as a binary string.
+ */
+function sha256_str(s) {
+    return crypto_hash(s, 'sha256');
+}
+
+/**
+ * Wrapper to compute SHA512 on a `String`.
+ * @param {String} s - The `String` on which the SHA512 will be computed.
+ * @returns {String} The SHA512 of `s` as a binary string.
+ */
+function sha512_str(s) {
+    return crypto_hash(s, 'sha512');
+}
+
+// maps to store relevant info about hash functions
+const HASH_FUNCTIONS = new Map([
+    ['sha256_str', sha256_str],
+    ['sha512_str', sha512_str],
+]);
+const HASH_LENGTHS = new Map([
+    ['sha256_str', 32],
+    ['sha512_str', 64],
+]);
+// HASH FUNCTIONS END
 
 /**
  * Hash Set class (only stores hash values, not actual elements)
@@ -158,3 +187,29 @@ class HashSet {
         return hs;
     }
 }
+
+// TODO DELETE
+console.log("Creating new Hash Set...");
+const hs = new HashSet('sha512_str');
+const words = ['Alexander', 'Niema', 'Moshiri', 'Niema'];
+console.log("Adding elements: " + words.join(' '));
+for(const word of words) {
+    hs.add(word);
+}
+console.log(hs);
+const has_check = 'Alexander';
+console.log(`Checking if Hash Set has: ${has_check}`);
+console.log(hs.has(has_check));
+console.log(`Deleting and re-checking: ${has_check}`);
+hs.delete(has_check);
+console.log(hs);
+console.log(hs.has(has_check));
+console.log("Creating copy from JSON and checking equality...");
+json = hs.toJSON();
+hs2 = HashSet.fromJSON(json);
+console.log(hs.equals(hs2));
+console.log("Creating copy from file and checking equality...");
+const fn = 'hashset.hsj';
+hs.dump(fn)
+hs3 = HashSet.load(fn);
+console.log(hs.equals(hs3));
