@@ -110,7 +110,13 @@ class HashSet {
      * @param {String} fn - The name of the file into which this Hash Set should be dumped.
      */
     dump(fn) {
-        // TODO
+        //const headerBuffer = Buffer.from(`${this.hashsetjs_version}\n${this.hash_func_key}\n`, 'utf8');
+        //const hashesBuffer = Array.from(this.hashes, h => { return Buffer.from(h, 'binary'); });
+        const fileBuffer = Buffer.concat([
+            Buffer.from(`${this.hashsetjs_version}\n${this.hash_func_key}\n`, 'utf8'),
+            ...Array.from(this.hashes, h => { return Buffer.from(h, 'binary'); })
+        ]);
+        fs.writeFileSync(fn, fileBuffer);
     }
 
     /**
@@ -123,15 +129,24 @@ class HashSet {
 }
 
 // TEST TODO DELETE
+console.log("Creating new Hash Set...");
 const hs = new HashSet();
-hs.add("Niema");
-hs.add("Moshiri");
-hs.add("Niema");
+const words = ['Alexander', 'Niema', 'Moshiri', 'Niema'];
+console.log("Adding elements: " + words.join(' '));
+for(const word of words) {
+    hs.add(word);
+}
 console.log(hs);
-console.log(hs.has("Niema"));
-hs.delete("Niema");
+const has_check = 'Alexander';
+console.log("Checking if Hash Set has: " + has_check);
+console.log(hs.has(has_check));
+console.log("Deleting and re-checking: " + has_check);
+hs.delete(has_check);
 console.log(hs);
-console.log(hs.has("Niema"));
+console.log(hs.has("Alexander"));
+console.log("Creating copy from JSON and checking equality...");
 json = hs.toJSON();
 hs2 = HashSet.fromJSON(json);
 console.log(hs.equals(hs2));
+console.log("Creating copy from file and checking equality...");
+hs.dump('hashset.hsj')
