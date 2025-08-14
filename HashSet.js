@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 
 // useful constants
-const HASHSETJS_VERSION = '0.0.1';
+const HASHSETJS_VERSION = '1.0.0';
 
 // hash functions
 const HASH_FUNCTIONS = new Map();
@@ -158,29 +158,3 @@ class HashSet {
         return hs;
     }
 }
-
-// TEST TODO DELETE
-console.log("Creating new Hash Set...");
-const hs = new HashSet();
-const words = ['Alexander', 'Niema', 'Moshiri', 'Niema'];
-console.log("Adding elements: " + words.join(' '));
-for(const word of words) {
-    hs.add(word);
-}
-console.log(hs);
-const has_check = 'Alexander';
-console.log(`Checking if Hash Set has: ${has_check}`);
-console.log(hs.has(has_check));
-console.log(`Deleting and re-checking: ${has_check}`);
-hs.delete(has_check);
-console.log(hs);
-console.log(hs.has(has_check));
-console.log("Creating copy from JSON and checking equality...");
-json = hs.toJSON();
-hs2 = HashSet.fromJSON(json);
-console.log(hs.equals(hs2));
-console.log("Creating copy from file and checking equality...");
-const fn = 'hashset.hsj';
-hs.dump(fn)
-hs3 = HashSet.load(fn);
-console.log(hs.equals(hs3));
