@@ -17,6 +17,8 @@ HASH_FUNCTIONS.set('sha512_str',
         return crypto.createHash('sha512').update(s).digest().toString('binary');
     }
 );
+const HASH_LENGTHS = new Map();
+HASH_LENGTHS.set('sha512_str', 64);
 
 /**
  * Hash Set class (only stores hash values, not actual elements)
@@ -124,7 +126,36 @@ class HashSet {
      * @param {String} fn - The name of the file from which to load a Hash Set.
      */
     static load(fn) {
-        // TODO
+        // load file and parse header (`hashsetjs_version` + '\n' + `hash_func_key` + '\n')
+        const fileBuffer = fs.readFileSync(fn);
+        const firstNL = fileBuffer.indexOf(0x0A); // 0x0A = '\n'
+        if(firstNL === -1) {
+            throw new Error(`Invalid header HashSetJS file (missing HashSetJS version): ${fn}`);
+        }
+        const secondNL = fileBuffer.indexOf(0x0A, firstNL + 1); // 0x0A = '\n'
+        if(secondNL === -1) {
+            throw new Error(`Invalid header HashSetJS file (missing hash function key): ${fn}`);
+        }
+
+        // extract instance variables from header
+        const hashsetjs_version = fileBuffer.slice(0, firstNL).toString('utf8');
+        const hash_func_key = fileBuffer.slice(firstNL + 1, secondNL).toString('utf8');
+        if(!HASH_FUNCTIONS.has(hash_func_key)) {
+            throw new Error(`Invalid hash function (${hash_func_key}) in HashSetJS file: ${fn}`);
+        }
+        const hashLen = HASH_LENGTHS.get(hash_func_key);
+        if((fileBuffer.length - secondNL - 1) % hashLen != 0) {
+            throw new Error(`Hash function (${hash_func_key}) produces ${hashLen}-byte hashes, but body of HashSetJS file is not perfectly divisible: ${fn}`);
+        }
+
+        // create `HashSet` and return
+        const hs = new HashSet(hash_func_key);
+        hs.hashsetjs_version = hashsetjs_version;
+        this.hash_func = HASH_FUNCTIONS.get(hash_func_key);
+        for(let offset = secondNL + 1; offset + hashLen <= fileBuffer.length; offset += hashLen) {
+            hs.hashes.add(fileBuffer.slice(offset, offset + hashLen).toString('binary'));
+        }
+        return hs;
     }
 }
 
@@ -138,15 +169,18 @@ for(const word of words) {
 }
 console.log(hs);
 const has_check = 'Alexander';
-console.log("Checking if Hash Set has: " + has_check);
+console.log(`Checking if Hash Set has: ${has_check}`);
 console.log(hs.has(has_check));
-console.log("Deleting and re-checking: " + has_check);
+console.log(`Deleting and re-checking: ${has_check}`);
 hs.delete(has_check);
 console.log(hs);
-console.log(hs.has("Alexander"));
+console.log(hs.has(has_check));
 console.log("Creating copy from JSON and checking equality...");
 json = hs.toJSON();
 hs2 = HashSet.fromJSON(json);
 console.log(hs.equals(hs2));
 console.log("Creating copy from file and checking equality...");
-hs.dump('hashset.hsj')
+const fn = 'hashset.hsj';
+hs.dump(fn)
+hs3 = HashSet.load(fn);
+console.log(hs.equals(hs3));
