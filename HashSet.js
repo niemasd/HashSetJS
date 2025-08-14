@@ -4,7 +4,7 @@ const fs = require('fs');
 // IMPORTS END
 
 // CONSTANTS START
-const HASHSETJS_VERSION = '1.0.1';
+const HASHSETJS_VERSION = '1.0.2';
 // CONSTANTS END
 
 // HELPER FUNCTIONS START
@@ -16,6 +16,20 @@ const HASHSETJS_VERSION = '1.0.1';
  */
 function crypto_hash(s, algorithm) {
     return crypto.createHash(algorithm).update(s).digest().toString('binary');
+}
+
+/**
+ * Helper function to strip whitespace in a given `String` (e.g. prior to computing a hash).
+ * @param {String} s - The `String` to strip.
+ * @param {String} d - An optional delimiter around which to also strip whitespace.
+ * @returns {String} The stripped version of `s`.
+ */
+function strip_str(s, d='') {
+    if(d === '') {
+        return s.trim();
+    } else {
+        return s.split(d).map(v => v.trim()).join(d);
+    }
 }
 // HELPER FUNCTIONS END
 
@@ -30,6 +44,24 @@ function sha256_str(s) {
 }
 
 /**
+ * Wrapper to compute SHA256 on a `String`, stripping whitespace around commas.
+ * @param {String} s - The `String` on which the SHA256 will be computed.
+ * @returns {String} The SHA256 of `s` after stripping whitespace around commas.
+ */
+function sha256_csv(s) {
+    return sha256_str(strip_str(s, ','));
+}
+
+/**
+ * Wrapper to compute SHA256 on a `String`, stripping whitespace around tabs.
+ * @param {String} s - The `String` on which the SHA256 will be computed.
+ * @returns {String} The SHA256 of `s` after stripping whitespace around tabs.
+ */
+function sha256_tsv(s) {
+    return sha256_str(strip_str(s, '\t'));
+}
+
+/**
  * Wrapper to compute SHA512 on a `String`.
  * @param {String} s - The `String` on which the SHA512 will be computed.
  * @returns {String} The SHA512 of `s` as a binary string.
@@ -38,14 +70,40 @@ function sha512_str(s) {
     return crypto_hash(s, 'sha512');
 }
 
+/**
+ * Wrapper to compute SHA512 on a `String`, stripping whitespace around commas.
+ * @param {String} s - The `String` on which the SHA512 will be computed.
+ * @returns {String} The SHA512 of `s` after stripping whitespace around commas.
+ */
+function sha512_csv(s) {
+    return sha512_str(strip_str(s, ','));
+}
+
+/**
+ * Wrapper to compute SHA512 on a `String`, stripping whitespace around tabs.
+ * @param {String} s - The `String` on which the SHA512 will be computed.
+ * @returns {String} The SHA512 of `s` after stripping whitespace around tabs.
+ */
+function sha512_tsv(s) {
+    return sha512_str(strip_str(s, '\t'));
+}
+
 // maps to store relevant info about hash functions
 const HASH_FUNCTIONS = new Map([
+    ['sha256_csv', sha256_csv],
     ['sha256_str', sha256_str],
+    ['sha256_tsv', sha256_tsv],
+    ['sha512_csv', sha512_csv],
     ['sha512_str', sha512_str],
+    ['sha512_tsv', sha512_tsv],
 ]);
 const HASH_LENGTHS = new Map([
+    ['sha256_csv', 32],
     ['sha256_str', 32],
+    ['sha256_tsv', 32],
+    ['sha512_csv', 64],
     ['sha512_str', 64],
+    ['sha512_tsv', 64],
 ]);
 // HASH FUNCTIONS END
 
