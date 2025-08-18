@@ -170,33 +170,9 @@ class HashSet {
     }
 
     /**
-     * Get a JSON representation of this Hash Set.
-     * @returns {String} The JSON representation of this Hash Set.
-     */
-    toJSON() {
-        return {
-            hashsetjs_version: this.hashsetjs_version,
-            hashes: Array.from(this.hashes, h => btoa(h)),
-            hash_func_key: this.hash_func_key
-        };
-    }
-
-    /**
-     * Load a Hash Set from a JSON representation.
-     * @param {JSON} json - The JSON representation from which to load a Hash Set.
-     * @returns {HashSet} - The loaded Hash Set.
-     */
-    static fromJSON(json) {
-        const hs = new HashSet(json.hash_func_key);
-        hs.hash_func = HASH_FUNCTIONS.get(json.hash_func_key);
-        hs.hashsetjs_version = json.hashsetjs_version;
-        hs.hashes = new Set(json.hashes.map(h => atob(h)));
-        return hs;
-    }
-
-    /**
-     * Dump this Hash Set into a given file.
-     * @param {String} fn - The name of the file into which this Hash Set should be dumped.
+     * Dump this Hash Set into a `Buffer` of bytes, and optionally write it to a file.
+     * @param {String} fn - The name of the file into which this Hash Set should be dumped, or `null` to not write to a file.
+     * @returns {Buffer} - The raw bytes of the dumped Hash Set.
      */
     dump(fn=null) {
         const fileBuffer = Buffer.concat([
@@ -210,12 +186,19 @@ class HashSet {
     }
 
     /**
-     * Load a Hash Set from a given file.
-     * @param {String} fn - The name of the file from which to load a Hash Set.
+     * Load a Hash Set from a given file or `Buffer`.
+     * @param {String} fn - The name of the file from which to load a Hash Set, or the `Buffer` containing the file's contents.
+     * @returns {HashSet} - The loaded Hash Set.
      */
     static load(fn) {
         // load file and parse header (`hashsetjs_version` + '\n' + `hash_func_key` + '\n')
-        const fileBuffer = fs.readFileSync(fn);
+        const param_type = (typeof fn);
+        let fileBuffer = null;
+        if(param_type === 'string') {
+            fileBuffer = fs.readFileSync(fn);
+        } else {
+            fileBuffer = fn;
+        }
         const firstNL = fileBuffer.indexOf(0x0A); // 0x0A = '\n'
         if(firstNL === -1) {
             throw new Error(`Invalid header HashSetJS file (missing HashSetJS version): ${fn}`);

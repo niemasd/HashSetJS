@@ -19,13 +19,13 @@ console.log(`Deleting and re-checking: ${has_check}`);
 hs.delete(has_check);
 console.log(hs);
 console.log(hs.has(has_check));
-console.log("Creating copy from JSON and checking equality...");
-json = hs.toJSON();
-hs2 = HashSet.fromJSON(json);
+console.log("Creating copy from raw bytes and checking equality...");
+buf = hs.dump();
+hs2 = HashSet.load(buf);
 console.log(hs.equals(hs2));
 console.log("Creating copy from file and checking equality...");
 const fn = 'hashset.hsj';
-hs.dump(fn)
+hs.dump(fn);
 hs3 = HashSet.load(fn);
 console.log(hs.equals(hs3));
 ```
