@@ -4,7 +4,7 @@ const fs = require('fs');
 // IMPORTS END
 
 // CONSTANTS START
-const HASHSETJS_VERSION = '1.0.2';
+const HASHSETJS_VERSION = '1.0.3';
 // CONSTANTS END
 
 // HELPER FUNCTIONS START
@@ -198,14 +198,15 @@ class HashSet {
      * Dump this Hash Set into a given file.
      * @param {String} fn - The name of the file into which this Hash Set should be dumped.
      */
-    dump(fn) {
-        //const headerBuffer = Buffer.from(`${this.hashsetjs_version}\n${this.hash_func_key}\n`, 'utf8');
-        //const hashesBuffer = Array.from(this.hashes, h => { return Buffer.from(h, 'binary'); });
+    dump(fn=null) {
         const fileBuffer = Buffer.concat([
             Buffer.from(`${this.hashsetjs_version}\n${this.hash_func_key}\n`, 'utf8'),
             ...Array.from(this.hashes, h => { return Buffer.from(h, 'binary'); })
         ]);
-        fs.writeFileSync(fn, fileBuffer);
+        if(fn !== null) {
+            fs.writeFileSync(fn, fileBuffer);
+        }
+        return fileBuffer;
     }
 
     /**
